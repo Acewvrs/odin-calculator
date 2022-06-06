@@ -19,6 +19,11 @@ function divideNum(a, b) {
     return a / b;
 }
 
+function modulusNum(a, b) {
+    if (typeof a !== 'number' || typeof b !== 'number') return 'Not a Number!';
+    return a % b;
+}
+
 function operate(num1, num2, op) {
     num1 = Number(num1);
     num2 = Number(num2);
@@ -26,6 +31,7 @@ function operate(num1, num2, op) {
     else if (op === '-') return subtractNum(num1, num2);
     else if (op === 'x') return multiplyNum(num1, num2);
     else if (op === '/') return divideNum(num1, num2);
+    else if (op === '%') return modulusNum(num1, num2);
     else return "ERROR";
 }
 
@@ -126,8 +132,13 @@ function displayInput_alt_ver(button) {
     }
 }
 
-function displayInput(button) {
-    let input = button.target.textContent;
+function displayInput(button, key=false) {
+    let input;
+    if (key === false) input = button.target.textContent;
+    else {
+        input = key;
+    }
+
     if (input === 'C') {
         display.value = '0';
         operator_in_use = '';
@@ -144,9 +155,11 @@ function displayInput(button) {
             ans = operate(ans, display.value, operator_in_use);
             display.value = ans;
             take_another_num = true;
+            equal_pressed = true;
         }
     }
     else if (operators.includes(input)) {
+        if (equal_pressed) equal_pressed = false;
         if (!is_input_saved) { 
             operator_in_use = input;
             ans = display.value;
@@ -177,15 +190,26 @@ function displayInput(button) {
         }
     }
     else {
-        if (take_another_num) {
+        if (equal_pressed) {
+            display.value = input;
+            operator_in_use = '';
+            is_input_saved = false;
+            take_another_num = false;
+            dot_exist = false;
+            ans = 0;
+            equal_pressed = false;
+        }
+        else if (take_another_num) {
             display.value = input;
             take_another_num = false;
+            dot_exist = false;
         }
         else if (display.value === '0' || display.value === "NaN" || display.value === "ERROR") {
             display.value = input;
             operator_in_use = '';
             is_input_saved = false;
             take_another_num = false;
+            dot_exist = false;
             ans = 0;
         }
         else {
@@ -194,11 +218,19 @@ function displayInput(button) {
     }
 }
 
+function displayKeyboardInput(event) {
+    let number_keys = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+    if (number_keys.includes(event.key)) {
+        displayInput(event, event.key)
+    }
+}
+
+let equal_pressed = false;
 let take_another_num = false;
 let operator_in_use = '';
 let is_input_saved = false;
 let dot_exist = false;
-let operators = ['+', '-', 'x', '/'];
+let operators = ['+', '-', 'x', '/', '%'];
 let ans = 0;
 
 //list of numbers and operators from left to right
@@ -206,8 +238,11 @@ let numbers = [];
 let ops = [];
 let tempNumber;
 
+document.addEventListener("keydown", displayKeyboardInput);
+
 let display = document.querySelector("input");
 display.value = '0';
+display.disabled = true;
 
 let buttons = Array.from(document.querySelectorAll("button"));
 buttons.forEach(button => {button.addEventListener("click", displayInput)});

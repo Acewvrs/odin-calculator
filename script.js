@@ -133,6 +133,7 @@ function displayInput(button) {
         operator_in_use = '';
         is_input_saved = false;
         take_another_num = false;
+        dot_exist = false;
         ans = 0;
     }
     else if (input === '←') {
@@ -144,7 +145,6 @@ function displayInput(button) {
             display.value = ans;
             take_another_num = true;
         }
-        // display.value = evaluate(display.value);
     }
     else if (operators.includes(input)) {
         if (!is_input_saved) { 
@@ -157,18 +157,28 @@ function displayInput(button) {
             if (!take_another_num) {
                 ans = operate(ans, display.value, operator_in_use);
                 display.value = ans;
-                operator_in_use = input;
                 take_another_num = true;
             }
-            else {
-                operator_in_use = input;
-            }
+            operator_in_use = input;
+        }
+    }
+    else if (input === "+/-") {
+        if (display.value.charAt(0) !== '-') {
+            display.value = '-' + display.value;
+        }
+        else {
+            display.value = display.value.replace('-', '');
+        }
+    }
+    else if (input === '.') {
+        if (!dot_exist) {
+            display.value += input;
+            dot_exist = true;
         }
     }
     else {
         if (take_another_num) {
             display.value = input;
-            console.log("Eval");
             take_another_num = false;
         }
         else if (display.value === '0' || display.value === "NaN" || display.value === "ERROR") {
@@ -177,11 +187,9 @@ function displayInput(button) {
             is_input_saved = false;
             take_another_num = false;
             ans = 0;
-            console.log("Error");
         }
         else {
             display.value += input;
-            console.log("add");
         }
     }
 }
@@ -189,6 +197,7 @@ function displayInput(button) {
 let take_another_num = false;
 let operator_in_use = '';
 let is_input_saved = false;
+let dot_exist = false;
 let operators = ['+', '-', 'x', '/'];
 let ans = 0;
 
